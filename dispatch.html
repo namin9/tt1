@@ -72,6 +72,21 @@
     font-weight: 600;
     margin-top: 0.5rem;
   }
+  .home-btn {
+    display: none;
+    margin-top: 1.8rem;
+    padding: 0.9rem 1.5rem;
+    border: none;
+    border-radius: 0.8rem;
+    background: #38bdf8;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .home-btn:hover {
+    background: #0ea5e9;
+  }
   footer {
     text-align: center;
     padding: 1rem;
@@ -87,6 +102,7 @@
       <h2 id="routeTitle">📦 배차 진행 중</h2>
       <div class="status-text" id="statusText"></div>
       <div class="alert" id="alertText"></div>
+      <button class="home-btn" id="homeBtn" onclick="goHome()">🏠 홈으로 돌아가기</button>
     </section>
 
     <div class="road-scene">
@@ -107,6 +123,7 @@ function startProcess() {
   const status = document.getElementById("statusText");
   const alertBox = document.getElementById("alertText");
   const icon = document.getElementById("icon");
+  const homeBtn = document.getElementById("homeBtn");
 
   status.innerText = "인근 퀵 서비스 확인 중…";
   alertBox.innerText = "";
@@ -130,7 +147,12 @@ function startProcess() {
     status.innerText = "택시 배차 실패 😥";
     alertBox.innerText = "⚠️ 인근 차량 없음 – 서버 통신 오류";
     icon.style.left = "85%";
+    homeBtn.style.display = "inline-block";
   }, 7500);
+}
+
+function goHome() {
+  window.location.href = "index.html";
 }
 </script>
 </body>
