@@ -44,29 +44,31 @@
     margin-top: 0.5rem;
     font-size: 1rem;
   }
+  /* ✅ 리스트 디자인 수정: 흰 배경 + 검은 글씨 */
   ul.suggestions {
     list-style: none;
     padding: 0;
     margin: 0.4rem 0 0;
-    background: rgba(255,255,255,0.12);
+    background: #ffffff;
+    color: #111;
     border-radius: 0.6rem;
     max-height: 230px;
     overflow-y: auto;
     position: absolute;
     width: calc(100% - 4rem);
     z-index: 10;
-    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   }
   ul.suggestions li {
     padding: 0.7rem 1rem;
     cursor: pointer;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid #e5e7eb;
   }
   ul.suggestions li:hover {
-    background: rgba(255,255,255,0.18);
+    background: #f3f4f6;
   }
   ul.suggestions li.selected {
-    background: rgba(59,130,246,0.35);
+    background: #e0f2fe;
     font-weight: 700;
   }
   .time-picker {
@@ -125,11 +127,11 @@
 
 <div class="container">
   <label>출발지</label>
-  <input type="text" id="startInput" placeholder="경기도청 입력...">
+  <input type="text" id="startInput" placeholder="출발지를 입력하세요">
   <ul id="startList" class="suggestions"></ul>
 
   <label>도착지</label>
-  <input type="text" id="endInput" placeholder="상주시청 입력...">
+  <input type="text" id="endInput" placeholder="도착지를 입력하세요">
   <ul id="endList" class="suggestions"></ul>
 
   <label>출발 시간</label>
