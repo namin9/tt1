@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeoQik | 경로 탐색</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Noto Sans KR", sans-serif;
+    background: linear-gradient(180deg, #0f172a, #1e293b);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  header {
+    padding: 1.5rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .container {
+    width: 90%;
+    max-width: 720px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #bae6fd;
+  }
+  input[type=text] {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 0.6rem;
+    border: none;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+  }
+  ul.suggestions {
+    list-style: none;
+    padding: 0;
+    margin: 0.4rem 0 0;
+    background: rgba(255,255,255,0.12);
+    border-radius: 0.6rem;
+    max-height: 230px;
+    overflow-y: auto;
+    position: absolute;
+    width: calc(100% - 4rem);
+    z-index: 10;
+    backdrop-filter: blur(4px);
+  }
+  ul.suggestions li {
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  ul.suggestions li:hover {
+    background: rgba(255,255,255,0.18);
+  }
+  ul.suggestions li.selected {
+    background: rgba(59,130,246,0.35);
+    font-weight: 700;
+  }
+  .time-picker {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.6rem;
+  }
+  select {
+    flex: 1;
+    padding: 0.8rem;
+    border-radius: 0.6rem;
+    border: none;
+    font-size: 1rem;
+  }
+  button {
+    margin-top: 1.8rem;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 0.8rem;
+    background: #3b82f6;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+  }
+  button:hover { background: #2563eb; }
+
+  /* overlay loading */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 100;
+  }
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(255,255,255,0.3);
+    border-top-color: #38bdf8;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { margin-top: 1rem; font-size: 1.2rem; }
+
+</style>
+</head>
+<body>
+<header>🚚 NeoQik Reverse ETA</header>
+
+<div class="container">
+  <label>출발지</label>
+  <input type="text" id="startInput" placeholder="경기도청 입력...">
+  <ul id="startList" class="suggestions"></ul>
+
+  <label>도착지</label>
+  <input type="text" id="endInput" placeholder="상주시청 입력...">
+  <ul id="endList" class="suggestions"></ul>
+
+  <label>출발 시간</label>
+  <div class="time-picker">
+    <select id="hourSelect"></select>
+    <select id="minuteSelect"></select>
+  </div>
+
+  <button onclick="startSearch()">경로 탐색 결과 보기</button>
+</div>
+
+<div class="overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">경로 탐색 중입니다...</div>
+</div>
+
+<script>
+const startPlaces = [
+  "경기도청 (37.289006, 127.053461)",
+  "경기도청우체국 (37.288641, 127.054390)",
+  "경기도청어린이집 (37.290016, 127.053933)",
+  "경기도청 열린민원실 (37.288942, 127.053795)",
+  "하나은행 경기도청점 (37.289285, 127.053543)",
+  "모즈토리 광교도청점 (37.289785, 127.047836)",
+  "경기도청 2번게이트 (37.288074, 127.056048)",
+  "경기도청 스마트워크센터 (37.289028, 127.053763)",
+  "도청약국 (37.287921, 127.056498)",
+  "GS25 경기도청역점 (37.288568, 127.050847)"
+];
+const endPlaces = [
+  "상주시청 (36.410940, 128.159145)",
+  "상주시청 주차장1 (36.410500, 128.159125)",
+  "상주시청 직장어린이집 (36.409658, 128.162716)",
+  "상주시청 1별관 (36.410361, 128.158681)",
+  "상주시청 서성별관 (36.419635, 128.159536)",
+  "상주시청 2별관 (36.411384, 128.158737)",
+  "상주시청 4별관 (36.410902, 128.151668)",
+  "상주시청 3별관 (36.411427, 128.159085)",
+  "NH농협은행 상주시청 출장소 (36.411383, 128.158738)",
+  "상주시청 CCTV통합관제실 (36.410232, 128.158677)"
+];
+
+// 자동완성 표시 (입력 후 1초 지연)
+function attachAutoComplete(inputId, listId, data) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+  let timer;
+  input.addEventListener("input", () => {
+    clearTimeout(timer);
+    const val = input.value.trim();
+    list.innerHTML = "";
+    if (!val) return;
+    timer = setTimeout(() => {
+      const matches = data.filter(item => item.includes(val));
+      if (matches.length === 0) return;
+      list.innerHTML = matches.map((m,i)=>`<li onclick="selectItem('${inputId}','${listId}','${m}',${i})">${m}</li>`).join("");
+    }, 1000);
+  });
+}
+
+function selectItem(inputId, listId, value) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+  input.value = value.split(" (")[0];
+  list.innerHTML = "";
+}
+
+// 출발시간 선택기
+const hourSel = document.getElementById("hourSelect");
+const minSel = document.getElementById("minuteSelect");
+for (let h=0; h<24; h++) {
+  const opt = document.createElement("option");
+  opt.value = h.toString().padStart(2,'0');
+  opt.textContent = `${opt.value}시`;
+  if (h===12) opt.selected = true;
+  hourSel.appendChild(opt);
+}
+for (let m=0; m<60; m+=10) {
+  const opt = document.createElement("option");
+  opt.value = m.toString().padStart(2,'0');
+  opt.textContent = `${opt.value}분`;
+  minSel.appendChild(opt);
+}
+
+// 로딩 후 결과페이지 이동
+function startSearch() {
+  const overlay = document.getElementById("loadingOverlay");
+  overlay.style.display = "flex";
+  setTimeout(()=>{ 
+    window.location.href = "results.html"; 
+  }, 2000);
+}
+
+attachAutoComplete("startInput", "startList", startPlaces);
+attachAutoComplete("endInput", "endList", endPlaces);
+</script>
+</body>
+</html>

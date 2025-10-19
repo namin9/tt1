@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeoQik | 경로 탐색 결과</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Pretendard", "Noto Sans KR", sans-serif;
+    background: linear-gradient(180deg, #0f172a, #1e293b);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  header {
+    padding: 1.5rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .container {
+    width: 90%;
+    max-width: 720px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+  }
+  h2 {
+    margin-bottom: 1rem;
+    color: #bae6fd;
+  }
+  .card {
+    background: rgba(255,255,255,0.08);
+    border-radius: 1rem;
+    padding: 1.2rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: 0.25s;
+  }
+  .card:hover {
+    background: rgba(255,255,255,0.15);
+    transform: scale(1.01);
+  }
+  .route-title { color: #38bdf8; font-weight: 600; font-size: 1.1rem; }
+  .steps { color: #e2e8f0; margin-top: 0.5rem; line-height: 1.5; font-size: 0.95rem; }
+  .meta { font-size: 0.9rem; color: #cbd5e1; margin-top: 0.7rem; display: flex; justify-content: space-between; }
+  footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+  }
+</style>
+</head>
+<body>
+<header>🚚 NeoQik Reverse ETA</header>
+
+<div class="container">
+  <h2>경로 탐색 결과 (출발 12:00)</h2>
+
+  <div class="card" onclick="goDispatch('성남종합버스터미널 경로')">
+    <div class="route-title">① 경기도청 → 성남종합버스터미널 → 상주버스터미널 → 상주시청</div>
+    <div class="steps">
+      🚕 택시(6.3km / 15분) → 성남터미널<br>
+      🚌 시외버스(성남→상주) 2시간 40분<br>
+      🚕 상주터미널→시청 3.2km / 10분
+    </div>
+    <div class="meta"><span>요금 약 41,800원</span><span>도착 14:55</span></div>
+  </div>
+
+  <div class="card" onclick="goDispatch('동서울터미널 경로')">
+    <div class="route-title">② 경기도청 → 동서울터미널 → 상주버스터미널 → 상주시청</div>
+    <div class="steps">
+      🚕 택시(32km / 40분) → 동서울터미널<br>
+      🚌 고속버스(동서울→상주) 2시간 20분<br>
+      🚕 상주터미널→시청 3.2km / 10분
+    </div>
+    <div class="meta"><span>요금 약 46,500원</span><span>도착 14:30</span></div>
+  </div>
+
+  <div class="card" onclick="goDispatch('서울고속터미널 경로')">
+    <div class="route-title">③ 경기도청 → 서울고속버스터미널 → 상주버스터미널 → 상주시청</div>
+    <div class="steps">
+      🚕 택시(39km / 50분) → 서울고속터미널<br>
+      🚌 고속버스(서울→상주) 2시간 30분<br>
+      🚕 상주터미널→시청 3.2km / 10분
+    </div>
+    <div class="meta"><span>요금 약 49,700원</span><span>도착 14:40</span></div>
+  </div>
+</div>
+
+<footer>© 2025 NeoQik Prototype</footer>
+
+<script>
+function goDispatch(routeName) {
+  // 선택한 경로 이름을 다음 페이지로 전달 (필요 시)
+  sessionStorage.setItem("routeName", routeName);
+  window.location.href = "dispatch.html";
+}
+</script>
+</body>
+</html>
